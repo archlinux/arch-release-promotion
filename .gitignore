@@ -1,0 +1,6 @@
+.coverage
+.tox/
+coverage.xml
+*.pyc
+__pycache__/
+*.zip
