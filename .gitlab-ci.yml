@@ -1,0 +1,21 @@
+---
+
+image: archlinux:latest
+
+stages:
+  - check
+  - coverage
+
+linter:
+  before_script:
+    - pacman --noconfirm -Syu --needed python-poetry python-tox
+  script:
+    - tox -e linter
+  stage: check
+
+coverage:
+  before_script:
+    - pacman --noconfirm -Syu --needed python-poetry python-tox
+  script:
+    - tox -e coverage
+  stage: coverage

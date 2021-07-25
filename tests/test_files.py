@@ -1,0 +1,188 @@
+import tempfile
+import zipfile
+from contextlib import nullcontext as does_not_raise
+from pathlib import Path
+from typing import ContextManager, Iterator, List
+
+from pytest import fixture, mark, raises
+
+from arch_release_promotion import files, release
+
+
+@fixture
+def create_temp_zipfile() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.NamedTemporaryFile(dir=temp_dir) as temp_file:
+            temp_file.write(b"foobar")
+            with zipfile.ZipFile(f"{temp_dir}/compressed.zip", "w") as zip_file:
+                zip_file.write(temp_file.name)
+
+        yield Path(str(zip_file.filename))
+
+
+@fixture
+def create_temp_dir() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        yield Path(temp_dir)
+
+
+@fixture
+def create_temp_dir_with_files() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory(dir=temp_dir) as inner_temp_dir:
+            with tempfile.NamedTemporaryFile(dir=inner_temp_dir, delete=False) as temp_file:
+                temp_file.write(b"foobar")
+            yield Path(inner_temp_dir)
+
+
+@fixture
+def create_temp_metrics_file() -> Iterator[Path]:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as temp_file:
+            temp_file.write(b'version_info{package="foo", description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b'version_info{package="foo", not_description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b"version_info 1\n")
+            temp_file.write(b'foo{package="foo", description="Version of foo", version="1.0.0-1"} 1\n')
+        yield Path(temp_file.name)
+
+
+@mark.parametrize(
+    "use_dir, expectation",
+    [
+        (True, does_not_raise()),
+        (False, raises(RuntimeError)),
+    ],
+)
+def test_files_in_dir(use_dir: bool, expectation: ContextManager[str]) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".foo", dir=temp_dir, delete=False)
+        with expectation:
+            assert files.files_in_dir(path=Path(temp_dir) if use_dir else Path(tmp_file.name)) == [
+                Path(tmp_file.name).name
+            ]
+
+
+@mark.parametrize(
+    "use_dir, version, expectation",
+    [
+        (True, "0.1.0", does_not_raise()),
+        (False, "0.1.0", raises(RuntimeError)),
+        (True, "", raises(RuntimeError)),
+    ],
+)
+def test_get_version_from_artifact_release_dir(use_dir: bool, version: str, expectation: ContextManager[str]) -> None:
+    with tempfile.TemporaryDirectory(suffix=f"-{version}") as temp_dir:
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".foo", dir=temp_dir, delete=False)
+        with expectation:
+            assert (
+                files.get_version_from_artifact_release_dir(path=Path(temp_dir) if use_dir else Path(tmp_file.name))
+                == version
+            )
+
+
+def test_create_and_remove_temp_dir() -> None:
+    temp_dir = files.create_temp_dir()
+    assert isinstance(temp_dir, Path)
+    with raises(RuntimeError):
+        files.remove_temp_dir(Path("foo"))
+    with raises(RuntimeError):
+        files.remove_temp_dir(Path("/tmp"))
+
+    with does_not_raise():
+        files.remove_temp_dir(temp_dir)
+
+
+def test_extract_zip_file(create_temp_zipfile: Path) -> None:
+    with raises(RuntimeError):
+        files.extract_zip_file_to_parent_dir(path=Path("foo"))
+    with does_not_raise():
+        files.extract_zip_file_to_parent_dir(path=create_temp_zipfile)
+
+
+@mark.parametrize(
+    "create_src, create_dst, expectation",
+    [
+        (True, True, does_not_raise()),
+        (False, True, raises(RuntimeError)),
+        (True, False, raises(RuntimeError)),
+    ],
+)
+def test_copy_signatures(
+    create_src: bool,
+    create_dst: bool,
+    expectation: ContextManager[str],
+) -> None:
+    with tempfile.TemporaryDirectory() as temp_dir:
+        src_dir = temp_dir / Path("source")
+        dst_dir = temp_dir / Path("destination")
+        if create_src:
+            src_dir.mkdir()
+            tempfile.NamedTemporaryFile(suffix=".sig", dir=src_dir, delete=False)
+            tempfile.NamedTemporaryFile(suffix=".foo", dir=src_dir, delete=False)
+        if create_dst:
+            dst_dir.mkdir()
+
+        with expectation:
+            files.copy_signatures(source=src_dir, destination=dst_dir)
+
+
+def test_write_release_info_to_file(create_temp_dir: Path) -> None:
+    files.write_release_info_to_file(
+        release=release.Release(
+            name="foo",
+            version="1.0.0",
+            files=["foo", "bar", "baz"],
+            developer="Foobar McFoo",
+            torrent_file="foo-0.1.0.torrent",
+            pgp_public_key="SOMEONESKEY",
+        ),
+        path=(create_temp_dir / Path("foo.json")),
+    )
+
+    with raises(IsADirectoryError):
+        files.write_release_info_to_file(
+            release=release.Release(
+                name="foo",
+                version="1.0.0",
+                files=["foo", "bar", "baz"],
+                developer="Foobar McFoo",
+                torrent_file="foo-0.1.0.torrent",
+                pgp_public_key="SOMEONESKEY",
+            ),
+            path=create_temp_dir,
+        )
+
+
+@mark.parametrize(
+    "name, format, expectation",
+    [
+        ("promotion", "zip", does_not_raise()),
+        ("", "zip", raises(RuntimeError)),
+        ("promotion", "foo", raises(RuntimeError)),
+    ],
+)
+def test_write_zip_file_to_parent_dir(
+    create_temp_dir_with_files: Path,
+    name: str,
+    format: str,
+    expectation: ContextManager[str],
+) -> None:
+    with expectation:
+        files.write_zip_file_to_parent_dir(
+            path=create_temp_dir_with_files,
+            name=name,
+            format=format,
+        )
+        assert (create_temp_dir_with_files.parent / Path(f"{name}.zip")).is_file()
+
+
+@mark.parametrize("metrics", [([]), (["foo"])])
+def test_read_metrics_file(metrics: List[str], create_temp_metrics_file: Path) -> None:
+    files.read_metrics_file(
+        path=create_temp_metrics_file,
+        metrics=metrics,
+    )
+    files.read_metrics_file(
+        path=create_temp_metrics_file,
+        metrics=metrics,
+    )

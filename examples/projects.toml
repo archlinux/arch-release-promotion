@@ -1,0 +1,36 @@
+[[projects]]
+name = "archlinux/releng"
+job_name = "secure_build"
+metrics_file = "metrics.txt"
+output_dir = "output"
+releases = [
+  {
+    name = "bootstrap",
+    info_metrics = ["archiso"],
+    extensions_to_sign = [".tar.gz"]
+  },
+  {
+    name = "ipxe",
+    info_metrics = [
+      "archiso",
+      "ipxe",
+    ],
+    extensions_to_sign = [".efi", ".lkrn", ".pxe"]
+  },
+  {
+    name = "iso",
+    info_metrics = [
+      "archiso",
+      "linux",
+    ],
+    extensions_to_sign = [".iso"]
+  },
+  {
+    name = "netboot",
+    info_metrics = [
+      "archiso",
+      "linux",
+    ],
+    extensions_to_sign = []
+  },
+]
