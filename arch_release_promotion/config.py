@@ -31,11 +31,14 @@ class ReleaseConfig(BaseModel):
         A list of openmetrics "name" labels of type info, that should be extracted from the project's metrics file
     extensions_to_sign: List[str]
         A list of file extensions for which to create detached signatures
+    create_torrent: bool
+        A bool indicating whether to create a torrent file for the release (defaults to False)
     """
 
     name: str
     info_metrics: List[str]
     extensions_to_sign: List[str]
+    create_torrent: bool = False
 
 
 class ProjectConfig(BaseModel):

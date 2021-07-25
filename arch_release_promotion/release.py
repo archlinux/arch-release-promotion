@@ -16,6 +16,8 @@ class Release(BaseModel):
         A list of files that belong to the release
     info: Dict[str, str]
         A dictionary that provides additional information about the release
+    torrent_file: str
+        A string representing the name of a torrent file for the release
     developer: str
         The name and mail address of the developer creating the release
     pgp_public_key: str
@@ -26,6 +28,6 @@ class Release(BaseModel):
     version: str
     files: List[str]
     info: Optional[Dict[str, Dict[str, str]]]
-    torrent_file: str
+    torrent_file: Optional[str]
     developer: str
     pgp_public_key: str
