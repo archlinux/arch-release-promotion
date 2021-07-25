@@ -4,10 +4,14 @@ arch-release-promotion
 
 This project allows for promoting existing releases of a project in Arch
 Linux's Gitlab instance.
-A promotion encompasses PGP signatures for relevant release artifacts, a
-.torrent file, that is created for each release type and a JSON payload per
-release type which can be used by archweb to display information about the
-release correctly.
+
+Releases of a project (e.g. ``project``) may consist of several release types
+(e.g. ``image_a`` and ``image_b``), which are addressed separately.
+
+A promotion encompasses - per release type - PGP signatures for relevant
+artifacts (optional), a torrent file (optional) and a JSON payload which can be
+used by `archweb <https://github.com/archlinux/archweb>`_ to display
+information about each release type.
 
 Requirements
 ============
@@ -53,6 +57,47 @@ Use
 ===
 
 After installation, refer to the output of ``arch-release-promotion -h``.
+
+
+JSON payload
+============
+
+The promotion of a release encompasses one or more JSON payloads, that describe
+each release type in the release.
+
+.. code:: json
+
+   {
+     "developer": "Foobar McFooface <foobar@mcfooface.com>",
+     "files": ["something.txt", "something.txt.sig"],
+     "info": [
+       {
+         "bar": {
+           "description": "Version of bar",
+           "version": "0.3.0"
+         }
+       }
+     ],
+     "name": "foo",
+     "pgp_public_key": "SOMEONESPGPKEYID",
+     "torrent_file": "foo-0.1.0.torrent",
+     "version": "0.1.0"
+   }
+
+* ``developer``: The full uid of the person promoting (and optionally signing
+  artifacts in) the release type.
+* ``files``: A list of files in the release type.
+* ``info`` (optional): Additional info about the (creation of) the release
+  type. The value depends on whether configuration of the release type defines
+  at least one value in its list of ``info_metrics`` and whether this is found
+  in the release's metrics file.
+* ``name``: The name of the release type.
+* ``pgp_public_key``: The PGP key ID of the key signing files in the release
+  type.
+* ``torrent_file`` (optional): The name of a torrent file created for the
+  release type. The value depends on whether the configuration for the release
+  type sets ``create_torrent`` to ``True``.
+* ``version``: The version of the release type.
 
 License
 =======
