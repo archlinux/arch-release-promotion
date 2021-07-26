@@ -231,3 +231,28 @@ class Settings(BaseSettings):
             raise ValueError(f"The GPGKEY string has to represent a PGP key ID in long format (40 chars): {gpgkey}")
 
         return gpgkey
+
+    @validator("PRIVATE_TOKEN")
+    def validate_private_token(cls, private_token: str) -> str:
+        """A validator for the PRIVATE_TOKEN attribute
+
+        Parameters
+        ----------
+        private_token: str
+            The private token string to validate
+
+        Raises
+        ------
+        ValueError
+            If the private token string is not valid
+
+        Returns
+        -------
+        str
+            A gpgkey string in long-format
+        """
+
+        if len(private_token) < 20:
+            raise ValueError("The PRIVATE_TOKEN string has to represent a valid private token (20 chars).")
+
+        return private_token
