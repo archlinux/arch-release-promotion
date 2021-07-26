@@ -4,7 +4,7 @@ image: archlinux:latest
 
 stages:
   - check
-  - coverage
+  - test
 
 linter:
   before_script:
@@ -18,4 +18,11 @@ coverage:
     - pacman --noconfirm -Syu --needed python-poetry python-tox
   script:
     - tox -e coverage
-  stage: coverage
+  stage: test
+
+system_test:
+  before_script:
+    - pacman --noconfirm -Syu --needed python-pydantic python-dotenv python-pyxdg python-email-validator python-torrentool python-gitlab python-orjson python-prometheus_client python-toml python-pytest
+  script:
+    - pytest -vv tests/ -m "not integration"
+  stage: test
