@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from torrentool.api import Torrent
 
 
-def create_torrent_file(path: Path, webseeds: List[str], output: Path) -> None:
+def create_torrent_file(path: Path, webseeds: List[str], output: Path) -> str:
     """Create a torrent file for a path and write it to an output directory
 
     Parameters
@@ -16,11 +16,18 @@ def create_torrent_file(path: Path, webseeds: List[str], output: Path) -> None:
         The list of webseeds to add to the torrent file
     output: Path
         A path to write the .torrent file to
+
+    Returns
+    -------
+    str
+        A string representing the name of the torrent file
     """
 
     torrent = Torrent.create_from(path)
     torrent.webseeds = webseeds
     torrent.to_file(output)
+
+    return output.name
 
 
 def get_webseeds(

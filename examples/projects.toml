@@ -7,7 +7,8 @@ releases = [
   {
     name = "bootstrap",
     info_metrics = ["archiso"],
-    extensions_to_sign = [".tar.gz"]
+    extensions_to_sign = [".tar.gz"],
+    create_torrent = true,
   },
   {
     name = "ipxe",
@@ -23,7 +24,8 @@ releases = [
       "archiso",
       "linux",
     ],
-    extensions_to_sign = [".iso"]
+    extensions_to_sign = [".iso"],
+    create_torrent = true,
   },
   {
     name = "netboot",

@@ -65,21 +65,21 @@ def main() -> None:
             )
             if metrics_file.exists()
             else None,
-            torrent_file=f"{release_config.name}-{release_version}.torrent",
+            torrent_file=torrent.create_torrent_file(
+                path=artifact_full_path,
+                webseeds=torrent.get_webseeds(
+                    artifact_type=release_config.name,
+                    mirrorlist_url=settings.MIRRORLIST_URL,
+                    version=release_version,
+                ),
+                output=promotion_release_path / Path(f"{release_config.name}-{release_version}.torrent"),
+            )
+            if release_config.create_torrent
+            else None,
             developer=settings.PACKAGER,
             pgp_public_key=settings.GPGKEY,
         )
 
-        torrent_file = promotion_release_path / Path(f"{release_config.name}-{release_version}.torrent")
-        torrent.create_torrent_file(
-            path=artifact_full_path,
-            webseeds=torrent.get_webseeds(
-                artifact_type=release_config.name,
-                mirrorlist_url=settings.MIRRORLIST_URL,
-                version=release_version,
-            ),
-            output=torrent_file,
-        )
         files.copy_signatures(source=artifact_full_path, destination=promotion_full_path)
         files.write_release_info_to_file(
             release=artifact_release,
