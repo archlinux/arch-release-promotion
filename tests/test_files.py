@@ -39,10 +39,20 @@ def create_temp_dir_with_files() -> Iterator[Path]:
 def create_temp_metrics_file() -> Iterator[Path]:
     with tempfile.TemporaryDirectory() as temp_dir:
         with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as temp_file:
-            temp_file.write(b'version_info{package="foo", description="Version of foo", version="1.0.0-1"} 1\n')
-            temp_file.write(b'version_info{package="foo", not_description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b"# TYPE version_info info\n")
+            temp_file.write(b"# HELP version_info Package description and version information\n")
+            temp_file.write(b'version_info{name="foo", description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b'version_info{name="bar", not_description="Version of bar", version="1.0.0-1"} 1\n')
             temp_file.write(b"version_info 1\n")
-            temp_file.write(b'foo{package="foo", description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b'version{name="foo", description="Version of foo", version="1.0.0-1"} 1\n')
+            temp_file.write(b"# TYPE artifact_bytes gauge\n")
+            temp_file.write(b"# HELP artifact_bytes Artifact sizes in bytes\n")
+            temp_file.write(b'artifact_bytes{name="foo",description="Size of ISO image in MiB"} 832\n')
+            temp_file.write(b'artifact_bytes{not_name="foo",description="Size of ISO image in MiB"} 832\n')
+            temp_file.write(b"# TYPE data_count summary\n")
+            temp_file.write(b"# HELP data_count The amount of packages used in specific buildmodes\n")
+            temp_file.write(b'data_count{name="foo",description="The amount of packages in foo"} 369\n')
+            temp_file.write(b'data_count{not_name="netboot",description="something else"} 369\n')
         yield Path(temp_file.name)
 
 
@@ -132,6 +142,9 @@ def test_write_release_info_to_file(create_temp_dir: Path) -> None:
             name="foo",
             version="1.0.0",
             files=["foo", "bar", "baz"],
+            amount_metrics=[],
+            size_metrics=[],
+            version_metrics=[],
             developer="Foobar McFoo",
             torrent_file="foo-0.1.0.torrent",
             pgp_public_key="SOMEONESKEY",
@@ -145,6 +158,9 @@ def test_write_release_info_to_file(create_temp_dir: Path) -> None:
                 name="foo",
                 version="1.0.0",
                 files=["foo", "bar", "baz"],
+                amount_metrics=[],
+                size_metrics=[],
+                version_metrics=[],
                 developer="Foobar McFoo",
                 torrent_file="foo-0.1.0.torrent",
                 pgp_public_key="SOMEONESKEY",
@@ -176,13 +192,33 @@ def test_write_zip_file_to_parent_dir(
         assert (create_temp_dir_with_files.parent / Path(f"{name}.zip")).is_file()
 
 
-@mark.parametrize("metrics", [([]), (["foo"])])
-def test_read_metrics_file(metrics: List[str], create_temp_metrics_file: Path) -> None:
-    files.read_metrics_file(
-        path=create_temp_metrics_file,
-        metrics=metrics,
+@mark.parametrize(
+    "file_exists, version_metrics_names, size_metrics_names, amount_metrics_names",
+    [
+        (True, [], [], []),
+        (False, [], [], []),
+        (True, ["foo"], ["foo"], ["foo"]),
+        (True, ["bar"], ["foo"], ["foo"]),
+        (True, ["bar"], ["foo"], ["bar"]),
+        (True, ["bar"], ["bar"], ["foo"]),
+    ],
+)
+def test_read_metrics_file(
+    file_exists: bool,
+    version_metrics_names: List[str],
+    size_metrics_names: List[str],
+    amount_metrics_names: List[str],
+    create_temp_metrics_file: Path,
+) -> None:
+    metrics = files.read_metrics_file(
+        path=create_temp_metrics_file if file_exists else Path("foo"),
+        version_metrics_names=version_metrics_names,
+        size_metrics_names=size_metrics_names,
+        amount_metrics_names=amount_metrics_names,
     )
-    files.read_metrics_file(
-        path=create_temp_metrics_file,
-        metrics=metrics,
-    )
+    if version_metrics_names == "foo":
+        assert len(metrics[2]) == 1
+    if size_metrics_names == "foo":
+        assert len(metrics[1]) == 1
+    if amount_metrics_names == "foo":
+        assert len(metrics[0]) == 1

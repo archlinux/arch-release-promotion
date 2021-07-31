@@ -27,8 +27,15 @@ class ReleaseConfig(BaseModel):
     ----------
     name: str
         The name of the release (type)
-    info_metrics: List[str]
-        A list of openmetrics "name" labels of type info, that should be extracted from the project's metrics file
+    version_metrics: Optional[List[str]]
+        A list of names that identify labels in metric samples of type "info", that should be extracted from the
+        project's metrics file
+    size_metrics: Optional[List[str]]
+        A list of names that identify labels in metric samples of type "gauge", that should be extracted from the
+        project's metrics file
+    amount_metrics: Optional[List[str]]
+        A list of names that identify labels in metric samples of type "summary", that should be extracted from the
+        project's metrics file
     extensions_to_sign: List[str]
         A list of file extensions for which to create detached signatures
     create_torrent: bool
@@ -36,7 +43,9 @@ class ReleaseConfig(BaseModel):
     """
 
     name: str
-    info_metrics: List[str]
+    version_metrics: Optional[List[str]]
+    size_metrics: Optional[List[str]]
+    amount_metrics: Optional[List[str]]
     extensions_to_sign: List[str]
     create_torrent: bool = False
 

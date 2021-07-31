@@ -2,12 +2,17 @@ import shutil
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, List
+from typing import List, Optional, Tuple
 
 import orjson
 from prometheus_client.parser import text_fd_to_metric_families
 
-from arch_release_promotion.release import Release
+from arch_release_promotion.release import (
+    AmountMetric,
+    Release,
+    SizeMetric,
+    VersionMetric,
+)
 
 TEMP_DIR_PREFIX = "arp-"
 
@@ -193,41 +198,82 @@ def write_zip_file_to_parent_dir(path: Path, name: str = "promotion", format: st
     shutil.make_archive(base_name=str(path.parent / Path(name)), format=format, root_dir=path)
 
 
-def read_metrics_file(path: Path, metrics: List[str]) -> Dict[str, Dict[str, str]]:
-    """Read a metrics file that contains openmetrics based metrics and return metrics that match the keywords
+def read_metrics_file(
+    path: Path,
+    version_metrics_names: Optional[List[str]],
+    size_metrics_names: Optional[List[str]],
+    amount_metrics_names: Optional[List[str]],
+) -> Tuple[List[AmountMetric], List[SizeMetric], List[VersionMetric]]:
+    """Read a metrics file that contains openmetrics based metrics and return those that match the respective keywords
 
     Parameters
     ----------
     path: Path
         The path of the file to read
-    metrics: List[str]
-        A list of metric names to search for in the metrics file
+    version_metrics_names: Optional[List[str]]
+        A list of metric names to search for in the labels of metric samples of type "info"
+    size_metrics_names: Optional[List[str]],
+        A list of metric names to search for in the labels of metric samples of type "gauge"
+    amount_metrics_names: Optional[List[str]],
+        A list of metric names to search for in the labels of metric samples of type "summary"
 
     Returns
     -------
-    Dict[str, str]:
-        A dictionary representing packages, their respective description and their version
+    Tuple[List[AmountMetric], List[SizeMetric], List[VersionMetric]]:
+        A Tuple with lists of AmountMetric, SizeMetric and VersionMetric instances derived from the input file
     """
 
-    output: Dict[str, Dict[str, str]] = {}
+    amount_metrics: List[AmountMetric] = []
+    size_metrics: List[SizeMetric] = []
+    version_metrics: List[VersionMetric] = []
 
-    with open(path, "r") as file:
-        for metric in text_fd_to_metric_families(file):
-            if metric.name == "version_info" and metric.samples:
+    if path.exists():
+        with open(path, "r") as file:
+            for metric in text_fd_to_metric_families(file):
                 for sample in metric.samples:
                     if (
-                        sample.labels.get("package")
+                        version_metrics_names
+                        and metric.type == "info"
+                        and metric.name == "version_info"
+                        and sample.labels.get("name") in version_metrics_names
                         and sample.labels.get("description")
                         and sample.labels.get("version")
-                        and sample.labels.get("package") in metrics
                     ):
-                        output.update(
-                            {
-                                sample.labels.get("package"): {
-                                    "description": sample.labels.get("description"),
-                                    "version": sample.labels.get("version"),
-                                }
-                            }
-                        )
-
-    return output
+                        version_metrics += [
+                            VersionMetric(
+                                name=sample.labels.get("name"),
+                                description=sample.labels.get("description"),
+                                version=sample.labels.get("version"),
+                            )
+                        ]
+                    if (
+                        size_metrics_names
+                        and metric.type == "gauge"
+                        and metric.name == "artifact_bytes"
+                        and sample.labels.get("name") in size_metrics_names
+                        and sample.labels.get("description")
+                        and sample.value
+                    ):
+                        size_metrics += [
+                            SizeMetric(
+                                name=sample.labels.get("name"),
+                                description=sample.labels.get("description"),
+                                size=sample.value,
+                            )
+                        ]
+                    if (
+                        amount_metrics_names
+                        and metric.type == "summary"
+                        and metric.name == "data_count"
+                        and sample.labels.get("name") in amount_metrics_names
+                        and sample.labels.get("description")
+                        and sample.value
+                    ):
+                        amount_metrics += [
+                            AmountMetric(
+                                name=sample.labels.get("name"),
+                                description=sample.labels.get("description"),
+                                amount=sample.value,
+                            )
+                        ]
+    return (amount_metrics, size_metrics, version_metrics)
