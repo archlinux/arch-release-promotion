@@ -1,6 +1,54 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
+
+
+class Metric(BaseModel):
+    """A pydantic model describing a metric
+
+    Attributes
+    ----------
+    name: str
+        A name for the metric
+    description: str
+        A description for the metric
+    """
+
+    name: str
+    description: str
+
+
+class SizeMetric(Metric):
+    """A pydantic model describing a size metric
+
+    Attributes
+    ----------
+    size: int
+    """
+
+    size: int
+
+
+class AmountMetric(Metric):
+    """A pydantic model describing an amount metric
+
+    Attributes
+    ----------
+    amount: int
+    """
+
+    amount: int
+
+
+class VersionMetric(Metric):
+    """A pydantic model describing a version metric
+
+    Attributes
+    ----------
+    version: str
+    """
+
+    version: str
 
 
 class Release(BaseModel):
@@ -14,8 +62,12 @@ class Release(BaseModel):
         The version of the artifact
     files: List[str]
         A list of files that belong to the release
-    info: Dict[str, str]
-        A dictionary that provides additional information about the release
+    amount_metrics: List[AmountMetric]
+        A list of AmountMetric instances that are related to the release
+    size_metrics: List[SizeMetric]
+        A list of SizeMetric instances that are related to the release
+    version_metrics: List[VersionMetric]
+        A list of VersionMetric instances that are related to the release
     torrent_file: str
         A string representing the name of a torrent file for the release
     developer: str
@@ -27,7 +79,9 @@ class Release(BaseModel):
     name: str
     version: str
     files: List[str]
-    info: Optional[Dict[str, Dict[str, str]]]
+    amount_metrics: List[AmountMetric]
+    size_metrics: List[SizeMetric]
+    version_metrics: List[VersionMetric]
     torrent_file: Optional[str]
     developer: str
     pgp_public_key: str

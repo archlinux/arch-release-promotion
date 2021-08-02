@@ -59,6 +59,102 @@ Use
 After installation, refer to the output of ``arch-release-promotion -h``.
 
 
+Openmetrics
+===========
+
+If the upstream project offers an `openmetrics <https://openmetrics.io/>`_
+based metrics file, the data from it can be used as additional information in
+the JSON payload.
+
+The following metrics are considered.
+
+Version metrics
+---------------
+
+Description and version information about e.g. packages can be derived from
+``version_info`` metrics of type ``info``, that define a ``name``,
+``description`` and ``version`` label.
+
+For the metrics to be considered, they have to be configured by adding a
+``version_metrics`` list (a list of names to look for) to a release of a
+project.
+
+.. code::
+
+   # TYPE version_info info
+   # HELP version_info Package description and version information
+   version_info{name="my-package",description="Version of my-package used for build",version="1.0.0-1"} 1
+
+The above metrics entry would result in the following JSON representation:
+
+.. code:: json
+
+   "version_metrics": [
+     {
+       "name": "my-package",
+       "description": "Version of my-package used for build",
+       "version": "1.0.0-1"
+     }
+   ]
+
+Size metrics
+------------
+
+Artifact size information in MebiBytes (MiB) and description can be derived
+from ``artifact_bytes`` metrics of type ``gauge``, that define a ``name`` and a
+``description`` label.
+
+For the metrics to be considered, they have to be configured by adding a
+``size_metrics`` list (a list of names to look for) to a release of a
+project.
+
+.. code::
+
+   # TYPE artifact_bytes gauge
+   # HELP artifact_bytes Artifact sizes in Bytes
+   artifact_bytes{name="foo",description="Size of foo in MiB"} 832
+
+The above metrics entry would result in the following JSON representation:
+
+.. code:: json
+
+   "size_metrics": [
+     {
+       "name": "foo",
+       "description": "Size of foo in MiB",
+       "size": 832
+     }
+   ]
+
+Amount metrics
+--------------
+
+Information on the amount of something (e.g. packages) and description can be
+derived from ``data_count`` metrics of type ``summary``, that define a ``name``
+and a ``description`` label.
+
+For the metrics to be considered, they have to be configured by adding a
+``amount_metrics`` list (a list of names to look for) to a release of a
+project.
+
+.. code::
+
+   # TYPE data_count summary
+   # HELP data_count The amount of something used in some context
+   data_count{name="foo",description="The amount of packages in foo"} 369
+
+The above metrics entry would result in the following JSON representation:
+
+.. code:: json
+
+   "amount_metrics": [
+     {
+       "name": "foo",
+       "description": "The amount of packages in foo",
+       "amount": 369
+     }
+   ]
+
 JSON payload
 ============
 
@@ -70,11 +166,27 @@ each release type in the release.
    {
      "developer": "Foobar McFooface <foobar@mcfooface.com>",
      "files": ["something.txt", "something.txt.sig"],
-     "info": [
+     "version_metrics": [
        {
-         "bar": {
-           "description": "Version of bar",
-           "version": "0.3.0"
+         "my-package": {
+           "description": "Version of my-package used for build",
+           "version": "1.0.0-1"
+         }
+       }
+     ],
+     "size_metrics": [
+       {
+         "foo": {
+           "description": "Size of foo in MiB",
+           "size": 832
+         }
+       }
+     ],
+     "amount_metrics": [
+       {
+         "foo": {
+           "description": "The amount of packages in foo",
+           "size": 369
          }
        }
      ],

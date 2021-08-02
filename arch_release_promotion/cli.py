@@ -55,16 +55,19 @@ def main() -> None:
             file_extensions=release_config.extensions_to_sign,
         )
 
+        metrics = files.read_metrics_file(
+            path=metrics_file,
+            version_metrics_names=release_config.version_metrics,
+            size_metrics_names=release_config.size_metrics,
+            amount_metrics_names=release_config.amount_metrics,
+        )
         artifact_release = release.Release(
             name=release_config.name,
             version=release_version,
             files=files.files_in_dir(path=artifact_full_path),
-            info=files.read_metrics_file(
-                path=metrics_file,
-                metrics=release_config.info_metrics,
-            )
-            if metrics_file.exists()
-            else None,
+            amount_metrics=metrics[0],
+            size_metrics=metrics[1],
+            version_metrics=metrics[2],
             torrent_file=torrent.create_torrent_file(
                 path=artifact_full_path,
                 webseeds=torrent.get_webseeds(
