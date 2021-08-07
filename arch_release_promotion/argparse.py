@@ -1,4 +1,6 @@
 import argparse
+from importlib import metadata
+from sys import exit
 
 
 class ArgParseFactory:
@@ -11,13 +13,19 @@ class ArgParseFactory:
 
     """
 
-    def __init__(self, description: str = "default") -> None:
-        self.parser = argparse.ArgumentParser(description=description)
+    def __init__(self, prog: str = "program", description: str = "default") -> None:
+        self.parser = argparse.ArgumentParser(prog=prog, description=description)
         self.parser.add_argument(
             "-v",
             "--verbose",
             action="store_true",
             help="verbose output",
+        )
+        self.parser.add_argument(
+            "-V",
+            "--version",
+            action="store_true",
+            help="version information",
         )
 
     @classmethod
@@ -30,12 +38,32 @@ class ArgParseFactory:
             An ArgumentParser instance specific for promotion
         """
 
-        instance = self(description="Download release artifacts from a project and promote them")
-        instance.parser.add_argument(
-            "name",
-            type=self.non_zero_string,
-            help="the project on a remote to sign (e.g. 'group/project')",
+        instance = self(
+            prog="arch-release-promotion",
+            description="Download release artifacts from a project and promote them",
         )
+        instance.parser.add_argument(
+            "-p",
+            "--project",
+            type=self.non_zero_string,
+            help=(
+                "the project on a remote to sign (e.g. 'group/project'). "
+                f"By default {instance.parser.prog} attempts to promote releases for "
+                "all projects specified in its config"
+            ),
+        )
+        instance.parser.add_argument(
+            "-r",
+            "--release",
+            type=self.non_zero_string,
+            help=(
+                "the release of a project to sign (e.g. '0.1.0'). "
+                f"By default {instance.parser.prog} requires user input to select a release."
+            ),
+        )
+        if instance.parser.parse_args().version:
+            print(f"{instance.parser.prog} {metadata.version('arch_release_promotion')}")
+            exit(0)
 
         return instance.parser
 
@@ -60,5 +88,5 @@ class ArgParseFactory:
         """
 
         if len(input_) < 1:
-            raise argparse.ArgumentTypeError("the provided project name can not be zero")
+            raise argparse.ArgumentTypeError("the provided string can not be empty")
         return input_

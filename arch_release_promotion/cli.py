@@ -14,7 +14,7 @@ from arch_release_promotion import (
 
 def main() -> None:
     args = argparse.ArgParseFactory.promote().parse_args()
-    project = config.Projects().get_project(name=args.name)
+    project = config.Projects().get_project(name=args.project)
     settings = config.Settings()
     upstream = gitlab.Upstream(
         url=settings.GITLAB_URL,
