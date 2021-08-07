@@ -1,5 +1,6 @@
 from pathlib import Path
 from sys import exit
+from typing import Optional
 
 from arch_release_promotion import (
     argparse,
@@ -12,21 +13,30 @@ from arch_release_promotion import (
 )
 
 
-def main() -> None:
-    args = argparse.ArgParseFactory.promote().parse_args()
-    project = config.Projects().get_project(name=args.project)
+def promote_project_release(project: config.ProjectConfig, release_version: Optional[str] = None) -> None:
+    """Promote a project's release
+
+    Parameters
+    ----------
+    project: config.ProjectConfig
+        The ProjectConfig object that describes the project's configuration
+    release_version: Optional[str]
+        The optional release version to promote. If None is provided, interactive user input is required (defaults to
+        None)
+    """
+
     settings = config.Settings()
     upstream = gitlab.Upstream(
         url=settings.GITLAB_URL,
         private_token=settings.PRIVATE_TOKEN,
         name=project.name,
     )
-    if settings.PRIVATE_TOKEN:
-        upstream.auth()
+    upstream.auth()
 
-    release_version = upstream.select_release()
     if not release_version:
-        exit(1)
+        release_version = upstream.select_release()
+        if not release_version:
+            exit(1)
 
     artifact_temp_dir = files.create_temp_dir()
     promotion_temp_dir = files.create_temp_dir()
@@ -97,3 +107,13 @@ def main() -> None:
 
     files.remove_temp_dir(path=artifact_temp_dir)
     files.remove_temp_dir(path=promotion_temp_dir)
+
+
+def main() -> None:
+    args = argparse.ArgParseFactory.promote().parse_args()
+    if args.project:
+        project = config.Projects().get_project(name=args.project)
+        promote_project_release(project=project, release_version=args.release if args.release else None)
+    else:
+        for project in config.Projects().projects:
+            promote_project_release(project=project)
