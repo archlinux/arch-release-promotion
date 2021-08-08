@@ -110,6 +110,12 @@ def test_settings(
             False,
             [],
             "",
+            raises(RuntimeError),
+        ),
+        (
+            True,
+            [],
+            "",
             raises(ValidationError),
         ),
     ],

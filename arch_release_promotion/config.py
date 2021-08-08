@@ -135,6 +135,8 @@ def read_projects_conf(settings: BaseSettings) -> Dict[str, Any]:
 
     if config_files:
         config.update(toml.load(config_files))
+    else:
+        raise RuntimeError("There are no project configuration files!")
 
     return config
 

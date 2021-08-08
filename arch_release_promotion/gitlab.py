@@ -57,7 +57,7 @@ class Upstream(gitlab.Gitlab):
 
         if release_tags:
             selection_string = "".join([f"{index}) {value}\n" for index, value in enumerate(release_tags)])
-            selection = input(f"Select a release:\n{selection_string}")
+            selection = input(f"Select a release for {self.name}:\n{selection_string}")
             return release_tags[int(selection)]
         else:
             print("There are no releases to promote!")
