@@ -155,6 +155,30 @@ The above metrics entry would result in the following JSON representation:
      }
    ]
 
+Promotion artifact
+==================
+
+The promotion artifact is a ZIP compressed file (``promotion.zip``), that is
+uploaded to the project before its link is added to the release that it is
+promoting.
+
+The file contains one directory for each release type that the project offers.
+In each release type directory there are is a **JSON payload**
+(``<release_type>-<version>.json``), a directory
+(``<release_type>-<version>/``) containing signatures for any files that have
+been setup for detached signatures and optionally a torrent file
+(``<release_type>-<version>.json``) that is created for the release type's
+build artifacts *and* the detached signatures contained in the promotion
+artifact.
+
+.. code::
+
+   example
+   ├── example-0.1.0
+   │   └── artifact.tar.gz.sig
+   ├── example-0.1.0.json
+   └── example-0.1.0.torrent
+
 JSON payload
 ============
 
