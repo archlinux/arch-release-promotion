@@ -27,7 +27,7 @@ The command-line tool ``arch-release-promotion`` makes use of two sources of con
 * `makepkg.conf <https://man.archlinux.org/man/makepkg.conf.5>`_ is read from
   any of its locations in the same priority as `makepkg
   <https://man.archlinux.org/man/makepkg.8>`_ does.
-  All of the below can also be based to the tool via environment variables:
+  All of the below can also be passed to the tool via environment variables:
 
   * ``GPGKEY`` is recognized for establishing which PGP key to use for signing
   * ``PACKAGER`` is recognized for establishing who is doing the signature and
