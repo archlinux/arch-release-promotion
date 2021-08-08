@@ -180,7 +180,7 @@ artifact.
    └── example-0.1.0.torrent
 
 JSON payload
-============
+------------
 
 The promotion of a release encompasses one or more JSON payloads, that describe
 each release type in the release.
@@ -188,51 +188,56 @@ each release type in the release.
 .. code:: json
 
    {
-     "developer": "Foobar McFooface <foobar@mcfooface.com>",
-     "files": ["something.txt", "something.txt.sig"],
-     "version_metrics": [
-       {
-         "my-package": {
-           "description": "Version of my-package used for build",
-           "version": "1.0.0-1"
-         }
-       }
-     ],
-     "size_metrics": [
-       {
-         "foo": {
-           "description": "Size of foo in MiB",
-           "size": 832
-         }
-       }
-     ],
      "amount_metrics": [
        {
-         "foo": {
-           "description": "The amount of packages in foo",
-           "size": 369
-         }
+         "name": "foo",
+         "description": "The amount of packages in foo",
+         "size": 369
        }
      ],
+     "developer": "Foobar McFooface <foobar@mcfooface.com>",
+     "files": ["something.txt", "something.txt.sig"],
      "name": "foo",
      "pgp_public_key": "SOMEONESPGPKEYID",
+     "size_metrics": [
+       {
+         "name": "foo",
+         "description": "Size of foo in MiB",
+         "size": 832
+       }
+     ],
      "torrent_file": "foo-0.1.0.torrent",
+     "version_metrics": [
+       {
+         "name": "my-package",
+         "description": "Version of my-package used for build",
+         "version": "1.0.0-1"
+       }
+     ],
      "version": "0.1.0"
    }
 
+* ``amount_metrics``: A list of objects that describe the amount of something
+  (optional). The list depends on whether the project's configuration defines
+  ``amount_metrics`` and whether those metrics are available in the specific
+  release.
 * ``developer``: The full uid of the person promoting (and optionally signing
   artifacts in) the release type.
 * ``files``: A list of files in the release type.
-* ``info`` (optional): Additional info about the (creation of) the release
-  type. The value depends on whether configuration of the release type defines
-  at least one value in its list of ``info_metrics`` and whether this is found
-  in the release's metrics file.
 * ``name``: The name of the release type.
 * ``pgp_public_key``: The PGP key ID of the key signing files in the release
   type.
+* ``size_metrics``: A list of objects that describe the size of something
+  (optional). The list depends on whether the project's configuration defines
+  ``size_metrics`` and whether those metrics are available in the specific
+  release.
 * ``torrent_file`` (optional): The name of a torrent file created for the
   release type. The value depends on whether the configuration for the release
   type sets ``create_torrent`` to ``True``.
+* ``version_metrics``: A list of objects that describe the version of something
+  (optional). The list depends on whether the project's configuration defines
+  ``version_metrics`` and whether those metrics are available in the specific
+  release.
 * ``version``: The version of the release type.
 
 License
