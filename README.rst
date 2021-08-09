@@ -59,7 +59,7 @@ The command-line tool ``arch-release-promotion`` makes use of two sources of con
   reference in regards to the available options
 
 Openmetrics
-===========
+-----------
 
 If the upstream project offers an `openmetrics <https://openmetrics.io/>`_
 based metrics file, the data from it can be used as additional information in
@@ -68,7 +68,7 @@ the JSON payload.
 The following metrics are considered.
 
 Version metrics
----------------
+^^^^^^^^^^^^^^^
 
 Description and version information about e.g. packages can be derived from
 ``version_info`` metrics of type ``info``, that define a ``name``,
@@ -97,7 +97,7 @@ The above metrics entry would result in the following JSON representation:
    ]
 
 Size metrics
-------------
+^^^^^^^^^^^^
 
 Artifact size information in MebiBytes (MiB) and description can be derived
 from ``artifact_bytes`` metrics of type ``gauge``, that define a ``name`` and a
@@ -126,7 +126,7 @@ The above metrics entry would result in the following JSON representation:
    ]
 
 Amount metrics
---------------
+^^^^^^^^^^^^^^
 
 Information on the amount of something (e.g. packages) and description can be
 derived from ``data_count`` metrics of type ``summary``, that define a ``name``
