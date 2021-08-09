@@ -1,0 +1,37 @@
+# A list of tables that defines settings for each project.
+# Each project defines a [[projects]] list of tables and its individual
+# settings.
+[[projects]]
+# The group and name of the project.
+name = "group/example"
+# The name of the job that provides build artifacts for releases.
+job_name = "build"
+# The name of a metrics file that resides in the release's output directory
+# (optional).
+metrics_file = "metrics.txt"
+# The name of the directory in which the release's artifacts reside.
+output_dir = "output"
+# A list of release types and their configurations.
+releases = [
+  # Each release type is described as an object.
+  # NOTE: TOML does not allow a trailing comma in an object (the last attribute
+  # does not have a trailing comma).
+  {
+    # A list of names matching openmetrics labels, that track amounts of
+    # something, to be extracted from the metrics file (optional).
+    amount_metrics = ["example_amount"],
+    # Whether to create a torrent file for the release type.
+    create_torrent = true,
+    # A list of file extensions (only the last part of the extension is matched
+    # against!) for which to create detached signatures.
+    extensions_to_sign = [".txt"],
+    # The name of the release type.
+    name = "example_a",
+    # A list of names matching openmetrics labels, that track the size of
+    # something, to be extracted from the metrics file (optional).
+    size_metrics = ["example_size"],
+    # A list of names matching openmetrics labels, that track the version of
+    # something, to be extracted from the metrics file (optional).
+    version_metrics = ["example_version"]
+  },
+]
