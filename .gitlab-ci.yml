@@ -5,6 +5,7 @@ image: archlinux:latest
 stages:
   - check
   - test
+  - publish
 
 linter:
   before_script:
@@ -26,3 +27,14 @@ system_test:
   script:
     - pytest -vv tests/ -m "not integration"
   stage: test
+
+pypi_publish:
+  before_script:
+    - pacman --noconfirm -Syu --needed python-poetry
+  rules:
+    - if: '$POETRY_PYPI_TOKEN_PYPI && $CI_COMMIT_TAG'
+  script:
+    - poetry publish --build
+  stage: publish
+  tags:
+    - secure
