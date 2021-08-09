@@ -10,6 +10,24 @@ packages = [
 include = [
   {path = 'tests/*', format = 'sdist'}
 ]
+readme = "README.rst"
+homepage = "https://gitlab.archlinux.org/archlinux/arch-release-promotion"
+repository = "https://gitlab.archlinux.org/archlinux/arch-release-promotion"
+documentation = "https://gitlab.archlinux.org/archlinux/arch-release-promotion/-/blob/master/README.rst"
+keywords = ["arch linux", "releases", "pgp", "signature", "torrent"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Security :: Cryptography",
+  "Topic :: Software Development",
+  "Topic :: System :: Operating System",
+  "Topic :: Utilities",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.archlinux.org/archlinux/arch-release-promotion/-/issues/"
 
 [tool.poetry.dependencies]
 python = "^3.9"
