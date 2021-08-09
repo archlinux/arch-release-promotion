@@ -49,13 +49,13 @@ The command-line tool ``arch-release-promotion`` makes use of two sources of con
     <https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html>`_
     needs to provide write access for the target project.
 
-* `projects.toml` is a configuration file that provides the configuration for a
+* ``projects.toml`` is a configuration file that provides the configuration for a
   project and its releases. Configuration files are read and merged with
   descending priority from ``/etc/arch-release-promotion/projects.toml`` and
   ``$XDG_CONFIG_HOME/arch-release-promotion/projects.toml`` (which defaults to
   ``$HOME/.config/arch-release-promotion/projects.toml`` if
   ``$XDG_CONFIG_HOME`` is unset).
-  Please refer to the `example file <examples/projects.toml>`_ for further
+  Please refer to `examples/example.toml <examples/example.toml>`_ for further
   reference in regards to the available options
 
 Openmetrics
