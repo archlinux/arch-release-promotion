@@ -5,34 +5,65 @@ metrics_file = "metrics.txt"
 output_dir = "output"
 releases = [
   {
-    name = "bootstrap",
-    info_metrics = ["archiso"],
-    extensions_to_sign = [".tar.gz"],
+    amount_metrics = [
+      "bootstrap",
+    ],
     create_torrent = true,
+    extensions_to_sign = [".gz"],
+    name = "bootstrap",
+    size_metrics = [
+      "bootstrap",
+    ],
+    version_metrics = [
+      "archiso",
+      "pacman",
+      "systemd",
+    ]
   },
   {
+    extensions_to_sign = [".efi", ".lkrn", ".pxe"],
     name = "ipxe",
     version_metrics = [
       "archiso",
       "ipxe",
-    ],
-    extensions_to_sign = [".efi", ".lkrn", ".pxe"]
+    ]
   },
   {
-    name = "iso",
-    version_metrics = [
-      "archiso",
-      "linux",
+    amount_metrics = [
+      "iso",
     ],
-    extensions_to_sign = [".iso"],
     create_torrent = true,
-  },
-  {
-    name = "netboot",
+    name = "iso",
+    extensions_to_sign = [".iso"],
+    size_metrics = [
+      "eltorito_efi_image",
+      "initramfs",
+      "iso",
+    ],
     version_metrics = [
+      "archinstall",
       "archiso",
       "linux",
+      "pacman",
+      "systemd",
+    ]
+  },
+  {
+    amount_metrics = [
+      "netboot",
     ],
-    extensions_to_sign = []
+    extensions_to_sign = [],
+    name = "netboot",
+    size_metrics = [
+      "netboot",
+      "initramfs",
+    ],
+    version_metrics = [
+      "archinstall",
+      "archiso",
+      "linux",
+      "pacman",
+      "systemd",
+    ]
   },
 ]
