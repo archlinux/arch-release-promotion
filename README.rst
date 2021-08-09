@@ -19,6 +19,11 @@ Requirements
 The arch-release-promotion tool is Python based. All requirements are specified
 in its `pyproject.toml <pyproject.toml>`_.
 
+Use
+===
+
+After installation, refer to the output of ``arch-release-promotion -h``.
+
 Configuration
 =============
 
@@ -52,12 +57,6 @@ The command-line tool ``arch-release-promotion`` makes use of two sources of con
   ``$XDG_CONFIG_HOME`` is unset).
   Please refer to the `example file <examples/projects.toml>`_ for further
   reference in regards to the available options
-
-Use
-===
-
-After installation, refer to the output of ``arch-release-promotion -h``.
-
 
 Openmetrics
 ===========
