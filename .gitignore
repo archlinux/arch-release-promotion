@@ -3,4 +3,5 @@
 coverage.xml
 *.pyc
 __pycache__/
+dist/
 *.zip
