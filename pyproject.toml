@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arch-release-promotion"
-version = "0.1.0"
+version = "0.1.1"
 description = "Promote official Arch Linux releases"
 authors = ["David Runge <dvzrv@archlinux.org>"]
 license = "GPL-3.0-or-later"
@@ -8,7 +8,8 @@ packages = [
   {include = 'arch_release_promotion'}
 ]
 include = [
-  {path = 'tests/*', format = 'sdist'}
+  {path = 'tests/*', format = 'sdist'},
+  {path = 'examples/*', format = 'sdist'},
 ]
 readme = "README.rst"
 homepage = "https://gitlab.archlinux.org/archlinux/arch-release-promotion"
