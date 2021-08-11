@@ -283,17 +283,24 @@ class Settings(BaseSettings):
 
     Attributes
     ----------
-    gpgkey: str
+    GITLAB_URL: str
+        A URL for a GitLab upstream (defaults to "https://gitlab.archlinux.org")
+    GPGKEY: str
         The PGP key id to use for artifact signatures
-    packager: str
-        The packager name and mail address to use for artifact signatures
+    MIRRORLIST_URL: str
+        A URL to derive a mirrorlist from (defaults to
+        "https://archlinux.org/mirrorlist/?country=all&protocol=http&protocol=https")
+    PACKAGER: str
+        The packager name and mail address (UID) to use for artifact signatures
+    PRIVATE_TOKEN: Optional[str]
+        An optional private token to use for authenticating against an upstream
     """
 
-    MIRRORLIST_URL: str = "https://archlinux.org/mirrorlist/?country=all&protocol=http&protocol=https"
     GITLAB_URL: str = "https://gitlab.archlinux.org"
     GPGKEY: str
+    MIRRORLIST_URL: str = "https://archlinux.org/mirrorlist/?country=all&protocol=http&protocol=https"
     PACKAGER: str
-    PRIVATE_TOKEN: str
+    PRIVATE_TOKEN: Optional[str]
 
     class Config:
 
@@ -371,7 +378,7 @@ class Settings(BaseSettings):
         return gpgkey
 
     @validator("PRIVATE_TOKEN")
-    def validate_private_token(cls, private_token: str) -> str:
+    def validate_private_token(cls, private_token: Optional[str]) -> Optional[str]:
         """A validator for the PRIVATE_TOKEN attribute
 
         Parameters
@@ -389,6 +396,9 @@ class Settings(BaseSettings):
         str
             A gpgkey string in long-format
         """
+
+        if private_token is None:
+            return None
 
         if len(private_token) < 20:
             raise ValueError("The PRIVATE_TOKEN string has to represent a valid private token (20 chars).")
