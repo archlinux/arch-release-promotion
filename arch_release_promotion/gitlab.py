@@ -11,14 +11,14 @@ class Upstream(gitlab.Gitlab):
     self.select_release(), self.download_release() and self.promote_release().
     """
 
-    def __init__(self, url: str, private_token: str, name: str):
+    def __init__(self, url: str, private_token: Optional[str], name: str):
         """Create an instance of Upstream
 
         Parameters
         ----------
         url: str
             The URL of the gitlab instance to interact with
-        private_token: str
+        private_token: Optional[str]
             An API token to use to interact with the gitlab instance
         name: str
             The name of the project to interact with
