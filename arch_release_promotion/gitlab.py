@@ -43,17 +43,7 @@ class Upstream(gitlab.Gitlab):
             The tag_name of the selected release
         """
 
-        project = self.projects.get(self.name)
-
-        release_tags: List[str] = []
-
-        for release in project.releases.list():
-            # only select releases that are not yet promoted
-            if (
-                not any(link.name == "Promotion artifact" for link in release.links.list())
-                and len(release_tags) < max_releases
-            ):
-                release_tags += [release.tag_name]
+        release_tags = self.get_releases(max_releases=max_releases, promoted=False)
 
         if release_tags:
             selection_string = "".join([f"{index}) {value}\n" for index, value in enumerate(release_tags)])
@@ -62,6 +52,44 @@ class Upstream(gitlab.Gitlab):
         else:
             print("There are no releases to promote!")
             return None
+
+    def get_releases(self, max_releases: int, promoted: bool = False) -> List[str]:
+        """Get a list of releases of a project
+
+        Parameters
+        ----------
+        max_releases: int
+            The maximum amount of releases to list
+        promoted: bool
+            Whether to only consider promoted releases (defaults to False)
+
+        Returns
+        -------
+        List[str]
+            A list of strings representing release tags of the project
+        """
+
+        project = self.projects.get(self.name)
+
+        release_tags: List[str] = []
+
+        for release in project.releases.list():
+            if promoted:
+                # only select releases that are promoted
+                if (
+                    any(link.name == "Promotion artifact" for link in release.links.list())
+                    and len(release_tags) < max_releases
+                ):
+                    release_tags += [release.tag_name]
+            else:
+                # only select releases that are not yet promoted
+                if (
+                    not any(link.name == "Promotion artifact" for link in release.links.list())
+                    and len(release_tags) < max_releases
+                ):
+                    release_tags += [release.tag_name]
+
+        return release_tags
 
     def download_release(self, tag_name: str, temp_dir: Path, job_name: str) -> Path:
         """Download the build artifacts of a project's release as a compressed file

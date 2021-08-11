@@ -67,6 +67,51 @@ def test_gitlab_select_release(
     assert upstream.select_release() == output
 
 
+@mark.parametrize(
+    "releases_available, tag_name, link_name, max_releases, promoted, output",
+    [
+        (True, "0.1.0", "Build artifacts", 1, False, ["0.1.0"]),
+        (False, "0.1.0", "Build artifacts", 1, False, []),
+        (True, "0.1.0", "Promotion artifact", 1, False, []),
+        (False, "0.1.0", "Promotion artifact", 1, False, []),
+        (True, "0.1.0", "Promotion artifact", 1, True, ["0.1.0"]),
+        (True, "0.1.0", "Build artifacts", 1, True, []),
+    ],
+)
+def test_gitlab_get_releases(
+    releases_available: bool,
+    tag_name: str,
+    link_name: str,
+    max_releases: bool,
+    promoted: bool,
+    output: Optional[str],
+) -> None:
+    upstream = gitlab.Upstream(
+        url="https://foo.bar-mc.foo",
+        private_token="THISISAFAKETOKEN",
+        name="foo/bar",
+    )
+    link = Mock()
+    link.name = link_name
+    links = Mock()
+    links.list.return_value = [link]
+
+    release = Mock()
+    release.links = links
+    release.tag_name = tag_name
+
+    releases = Mock()
+    releases.list.return_value = [release] if releases_available else []
+
+    project = Mock()
+    project.releases = releases
+
+    projects = Mock()
+    projects.get.return_value = project
+    upstream.projects = projects
+    assert upstream.get_releases(max_releases=max_releases, promoted=promoted) == output
+
+
 def test_gitlab_download_release() -> None:
     upstream = gitlab.Upstream(
         url="https://foo.bar-mc.foo",
