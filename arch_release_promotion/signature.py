@@ -46,6 +46,9 @@ def sign_file(path: Path, developer: str, gpgkey: str) -> int:
     return run(
         [
             "gpg",
+            "--batch",
+            "--no-armor",
+            "--no-include-key-block",
             "--sender",
             developer,
             "--default-key",
