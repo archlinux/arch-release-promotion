@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List, Optional
+from urllib import request
 
 import gitlab
 
@@ -125,6 +126,46 @@ class Upstream(gitlab.Gitlab):
             print(f"Skipping release {tag_name} as there are no artifacts to download")
 
         return artifact_zip
+
+    def download_promotion_artifact(self, tag_name: str, temp_dir: Path) -> Path:
+        """Download the promotion artifact of a project's release
+
+        Parameters
+        ----------
+        tag_name: str
+            The tag_name of the release to download
+        temp_dir: Path
+            The directory into which to download
+
+        Returns
+        -------
+        Path
+            The file path of the downloaded file
+        """
+
+        project = self.projects.get(self.name)
+        artifact_links: List[str] = []
+
+        for release in project.releases.list():
+            # only select releases that are promoted
+            if release.tag_name == tag_name and any(link.name == "Promotion artifact" for link in release.links.list()):
+                artifact_links += [link.url for link in release.links.list() if link.name == "Promotion artifact"]
+
+        if not artifact_links:
+            raise RuntimeError(
+                f"There is no promotion artifact to download for the release '{tag_name}' of project '{project.name}'."
+            )
+        if len(artifact_links) > 1:
+            raise RuntimeError(
+                f"There is more than one promotion artifact to download for the release '{tag_name}' "
+                f"of project '{project.name}'. Something is wrong!"
+            )
+
+        print(f"Downloading promotion artifact of release '{tag_name}' for '{self.name}'...")
+        filename, headers = request.urlretrieve(artifact_links[0], filename=temp_dir / Path("promotion.zip"))
+        print("Done!")
+
+        return Path(filename)
 
     def promote_release(self, tag_name: str, file: str) -> None:
         """Upload a promotion file to the project and add it as a link to a release
