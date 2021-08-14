@@ -29,6 +29,9 @@ def test_sign_file(run_mock: Mock) -> None:
         call(
             [
                 "gpg",
+                "--batch",
+                "--no-armor",
+                "--no-include-key-block",
                 "--sender",
                 developer,
                 "--default-key",
