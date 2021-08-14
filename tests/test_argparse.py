@@ -24,6 +24,18 @@ def test_argparse_promote(metadata_mock: Mock, exit_mock: Mock, parse_args_mock:
     assert isinstance(argparse.ArgParseFactory.promote(), ArgumentParser)
 
 
+@patch("argparse.ArgumentParser.parse_args")
+@patch("arch_release_promotion.argparse.exit")
+@patch("arch_release_promotion.argparse.metadata")
+def test_argparse_synchronize(metadata_mock: Mock, exit_mock: Mock, parse_args_mock: Mock) -> None:
+    assert isinstance(argparse.ArgParseFactory.synchronize(), ArgumentParser)
+    assert call.version("arch_release_promotion") in metadata_mock.mock_calls
+    exit_mock.assert_called_once()
+
+    parse_args_mock.return_value = Mock(version=False)
+    assert isinstance(argparse.ArgParseFactory.synchronize(), ArgumentParser)
+
+
 @mark.parametrize(
     "input_string, expectation",
     [

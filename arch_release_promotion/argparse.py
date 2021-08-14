@@ -68,6 +68,37 @@ class ArgParseFactory:
         return instance.parser
 
     @classmethod
+    def synchronize(self) -> argparse.ArgumentParser:
+        """A class method to create an ArgumentParser for synchronization
+
+        Returns
+        -------
+        argparse.ArgumentParser
+            An ArgumentParser instance specific for synchronization
+        """
+
+        instance = self(
+            prog="arch-release-sync",
+            description="Synchronize promoted releases of a project with a local directory",
+        )
+        instance.parser.add_argument(
+            "-p",
+            "--project",
+            type=self.non_zero_string,
+            help=(
+                "the project to synchronize from a remote (e.g. 'group/project'). "
+                f"By default {instance.parser.prog} attempts to synchronize releases for "
+                "all projects specified in its config"
+            ),
+        )
+
+        if instance.parser.parse_args().version:
+            print(f"{instance.parser.prog} {metadata.version('arch_release_promotion')}")
+            exit(0)
+
+        return instance.parser
+
+    @classmethod
     def non_zero_string(self, input_: str) -> str:
         """Validate a string to be of non_zero length
 
