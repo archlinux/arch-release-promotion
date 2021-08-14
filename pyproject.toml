@@ -52,6 +52,7 @@ coverage = "^5.5"
 
 [tool.poetry.scripts]
 arch-release-promotion = "arch_release_promotion.cli:main"
+arch-release-sync = "arch_release_promotion.cli:arch_release_sync"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
