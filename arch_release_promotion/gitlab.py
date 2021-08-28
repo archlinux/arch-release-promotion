@@ -113,7 +113,7 @@ class Upstream(gitlab.Gitlab):
         project = self.projects.get(self.name)
         artifact_zip = temp_dir / Path(f"{self.project_name}-{tag_name}.zip")
         try:
-            print(f"Downloading build artifacts of release {tag_name}...")
+            print(f"Downloading build artifacts of release '{tag_name}' for '{self.name}'...")
             with open(artifact_zip, "wb") as download:
                 project.artifacts(
                     ref_name=tag_name,
