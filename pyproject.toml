@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "arch-release-promotion"
-version = "0.1.1"
-description = "Promote official Arch Linux releases"
+version = "0.2.0"
+description = "Promote official Arch Linux releases and synchronize them"
 authors = ["David Runge <dvzrv@archlinux.org>"]
 license = "GPL-3.0-or-later"
 packages = [
@@ -15,7 +15,7 @@ readme = "README.rst"
 homepage = "https://gitlab.archlinux.org/archlinux/arch-release-promotion"
 repository = "https://gitlab.archlinux.org/archlinux/arch-release-promotion"
 documentation = "https://gitlab.archlinux.org/archlinux/arch-release-promotion/-/blob/master/README.rst"
-keywords = ["arch linux", "releases", "pgp", "signature", "torrent"]
+keywords = ["arch linux", "releases", "pgp", "signature", "synchronization", "torrent"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -52,6 +52,7 @@ coverage = "^5.5"
 
 [tool.poetry.scripts]
 arch-release-promotion = "arch_release_promotion.cli:main"
+arch-release-sync = "arch_release_promotion.cli:arch_release_sync"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

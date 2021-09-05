@@ -117,3 +117,27 @@ def main() -> None:
     else:
         for project in config.Projects().projects:
             promote_project_release(project=project)
+
+
+def arch_release_sync() -> None:
+    """Synchronize releases
+
+    If the argument parser contains a specific project to synchronize, only synchronize that, else all configured
+    projects.
+    """
+
+    args = argparse.ArgParseFactory.synchronize().parse_args()
+    projects = config.Projects()
+    settings = config.Settings()
+
+    if args.project:
+        files.ProjectFiles.sync(
+            project_config=projects.get_project(name=args.project),
+            settings=settings,
+        )
+    else:
+        for project in projects.projects:
+            files.ProjectFiles.sync(
+                project_config=project,
+                settings=settings,
+            )

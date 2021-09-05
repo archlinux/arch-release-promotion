@@ -3,7 +3,7 @@ import tempfile
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from string import ascii_letters, ascii_uppercase
-from typing import ContextManager, List
+from typing import ContextManager, List, Optional
 from unittest.mock import patch
 
 from pydantic import ValidationError
@@ -19,6 +19,12 @@ from arch_release_promotion import config
             "".join(random.choice(ascii_uppercase) for x in range(40)),
             "Foobar McFoo <foobar@archlinux.org>",
             "".join(random.choice(ascii_letters) for x in range(20)),
+            does_not_raise(),
+        ),
+        (
+            "".join(random.choice(ascii_uppercase) for x in range(40)),
+            "Foobar McFoo <foobar@archlinux.org>",
+            None,
             does_not_raise(),
         ),
         (
@@ -62,13 +68,14 @@ from arch_release_promotion import config
 def test_settings(
     gpgkey: str,
     packager: str,
-    private_token: str,
+    private_token: Optional[str],
     expectation: ContextManager[str],
 ) -> None:
     conf = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".conf", delete=False)
     conf.write(f"GPGKEY='{gpgkey}'\n")
     conf.write(f"PACKAGER='{packager}'\n")
-    conf.write(f"PRIVATE_TOKEN={private_token}\n")
+    if private_token:
+        conf.write(f"PRIVATE_TOKEN={private_token}\n")
     conf.close()
 
     with patch("arch_release_promotion.config.MAKEPKG_CONFIGS", [Path(conf.name)]):
@@ -96,6 +103,38 @@ def test_settings(
         (
             True,
             [
+                "[sync_config]",
+                'directory = "foo"',
+                "backlog = 2",
+                "[[projects]]",
+                'name = "foo/bar"',
+                'job_name = "build"',
+                'metrics_file = "metrics.txt"',
+                'output_dir = "output"',
+                'releases = [{name = "test",version_metrics = ["bar"],extensions_to_sign = [".baz"]}]',
+            ],
+            "foo/bar",
+            does_not_raise(),
+        ),
+        (
+            True,
+            [
+                "[[projects]]",
+                'name = "foo/bar"',
+                'job_name = "build"',
+                'metrics_file = "metrics.txt"',
+                'output_dir = "output"',
+                'releases = [{name = "test",version_metrics = ["bar"],extensions_to_sign = [".baz"]}]',
+                "[projects.sync_config]",
+                'directory = "foo"',
+                "sync_backlog = 2",
+            ],
+            "foo/bar",
+            does_not_raise(),
+        ),
+        (
+            True,
+            [
                 "[[projects]]",
                 'name = "foo/bar"',
                 'job_name = "build"',
@@ -105,6 +144,21 @@ def test_settings(
             ],
             "foo/baz",
             raises(RuntimeError),
+        ),
+        (
+            True,
+            [
+                "[[projects]]",
+                'name = "foo/bar"',
+                'job_name = "build"',
+                'metrics_file = "metrics.txt"',
+                'output_dir = "output"',
+                "releases = [",
+                '{name = "test",extensions_to_sign = [".baz"]}',
+                '{name = "test",extensions_to_sign = [".bar"]}]',
+            ],
+            "foo/bar",
+            raises(ValidationError),
         ),
         (
             False,

@@ -1,16 +1,45 @@
+# This example configuration documents the default values and provides examples
+# where appropriate
+
+[sync_config]
+# A directory to synchronize release versions of all projects to (unless a
+# project overrides this setting individually).
+# This option is only used by arch-release-sync and documents its default value
+directory = "/var/lib/arch-release-promotion"
+
+# The amount of release versions to synchronize of each project (unless a
+# project overrides this setting indivdually)
+# This option is only used by arch-release-sync and documents its default value
+backlog = 3
+
+# Whether to download files to a temporary directory below sync_dir (stale
+# temporary directories will be removed before each synchronization in this
+# case). If set to false, a temporary directory below the user's default
+# temporary directory is created instead. This option may be omitted.
+temp_in_sync_dir = true
+
+# A file to write a Unix timestamp (seconds since the epoch) to, if any files
+# in "directory" change
+# last_updated_file = "/path/to/file"
+
 # A list of tables that defines settings for each project.
 # Each project defines a [[projects]] list of tables and its individual
 # settings.
 [[projects]]
+
 # The group and name of the project.
 name = "group/example"
+
 # The name of the job that provides build artifacts for releases.
 job_name = "build"
+
 # The name of a metrics file that resides in the release's output directory
 # (optional).
 metrics_file = "metrics.txt"
+
 # The name of the directory in which the release's artifacts reside.
 output_dir = "output"
+
 # A list of release types and their configurations.
 releases = [
   # Each release type is described as an object.
@@ -20,18 +49,45 @@ releases = [
     # A list of names matching openmetrics labels, that track amounts of
     # something, to be extracted from the metrics file (optional).
     amount_metrics = ["example_amount"],
+
     # Whether to create a torrent file for the release type.
     create_torrent = true,
+
     # A list of file extensions (only the last part of the extension is matched
     # against!) for which to create detached signatures.
     extensions_to_sign = [".txt"],
-    # The name of the release type.
+
+    # The **unique** name of the release type.
     name = "example_a",
+
     # A list of names matching openmetrics labels, that track the size of
     # something, to be extracted from the metrics file (optional).
     size_metrics = ["example_size"],
+
     # A list of names matching openmetrics labels, that track the version of
     # something, to be extracted from the metrics file (optional).
     version_metrics = ["example_version"]
   },
 ]
+
+# A project specific override for the sync_config
+[projects.sync_config]
+# A project specific override for the synchronization target directory to use
+# instead of the global default
+# This option is only used by arch-release-sync
+directory = "/tmp"
+
+# A project specific override for the amount of release versions of the project
+# to synchronize instead of using the global default
+# This option is only used by arch-release-sync
+backlog = 4
+
+# Whether to download files to a temporary directory below sync_dir (stale
+# temporary directories will be removed before each synchronization in this
+# case). If set to false, a temporary directory below the user's default
+# temporary directory is created instead. This option may be omitted.
+temp_in_sync_dir = false
+
+# A project specific override for the file to write a timestamp to, if files in
+# the synchronization directory change.
+# last_updated_file = "/path/to/file"
