@@ -20,7 +20,7 @@ PROJECTS_CONFIGS = [
     Path(f"{xdg_config_home}/arch-release-promotion/projects.toml"),
 ]
 
-PROJECTS_SYNC_DIR = Path("/var/lib/arch-release-promotion/")
+PROJECTS_SYNC_DIR = Path("/var/lib/arch-release-sync/")
 PROJECTS_SYNC_BACKLOG = 3
 
 
