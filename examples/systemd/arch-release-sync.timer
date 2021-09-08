@@ -1,0 +1,10 @@
+[Unit]
+Description=Synchronize promoted releases from gitlab.archlinux.org hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

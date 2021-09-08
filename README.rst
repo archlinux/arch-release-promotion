@@ -293,6 +293,16 @@ synchronization action), it is possible to write a Unix timestamp to a file
 that is configurable globally or per project (the directory in which the file
 resides in has to exist).
 
+System integration
+------------------
+
+For systemd based systems there are example systemd system service and timer
+files that are provided in `examples/systemd/ <examples/systemd/>`_.
+The provided service file relies on the user ``arch-release-sync`` which may be
+created using the `sysusers.d
+<https://man.archlinux.org/man/core/systemd/sysusers.d.5.en>`_ integration
+provided in `examples/sysusers.d/ <examples/sysusers.d/>`_.
+
 License
 =======
 

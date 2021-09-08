@@ -1,0 +1,38 @@
+[Unit]
+Description=Synchronize promoted releases from gitlab.archlinux.org
+Documentation=https://gitlab.archlinux.org/archlinux/arch-release-promotion
+Wants=network-online.target
+After=network-online.target nss-lookup.target
+
+[Service]
+CapabilityBoundingSet=
+Environment=GPGKEY=1234567890123456789012345678901234567890 PACKAGER="Not Relevant <not@archlinux.org>"
+ExecStart=/usr/bin/arch-release-sync
+Group=arch-release-sync
+LockPersonality=true
+MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectProc=invisible
+ProtectSystem=strict
+ReadOnlyPaths=/etc/arch-release-promotion/projects.toml
+ReadWritePaths=/var/lib/arch-release-sync/
+RemoveIPC=true
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+StateDirectory=arch-release-sync
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@resources @privileged
+User=arch-release-sync
