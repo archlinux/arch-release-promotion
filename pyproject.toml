@@ -47,7 +47,7 @@ pytest = "^5.2"
 isort = "^5.8.0"
 black = "^21.7b0"
 mypy = "^0.910"
-flake8 = "^3.9.2"
+flake8 = "^4.0.0"
 coverage = "^5.5"
 
 [tool.poetry.scripts]
