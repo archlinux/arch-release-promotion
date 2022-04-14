@@ -17,12 +17,9 @@ def test_get_webseeds(urlopen_mock: Mock) -> None:
     lines = b"# foo bar baz\n#Server = https://foo.bar/$repo/os/$arch\n"
     urlopen_mock.return_value = MagicMock(read=Mock(return_value=lines))
 
-    assert (
-        torrent.get_webseeds(
-            artifact_type=artifact_type,
-            mirrorlist_url=mirrorlist_url,
-            version=version,
-        )
-        == [f"https://foo.bar/releases/{artifact_type}/{version}/"]
-    )
+    assert torrent.get_webseeds(
+        artifact_type=artifact_type,
+        mirrorlist_url=mirrorlist_url,
+        version=version,
+    ) == [f"https://foo.bar/releases/{artifact_type}/{version}/"]
     urlopen_mock.assert_called_once_with(mirrorlist_url)
