@@ -251,7 +251,7 @@ def read_metrics_file(
 
     if path.exists():
         with open(path, "r") as file:
-            for metric in text_fd_to_metric_families(file):
+            for metric in text_fd_to_metric_families(file):  # type: ignore[no-untyped-call]
                 for sample in metric.samples:
                     if (
                         version_metrics_names
@@ -298,6 +298,7 @@ def read_metrics_file(
                                 amount=sample.value,
                             )
                         ]
+
     return (amount_metrics, size_metrics, version_metrics)
 
 
